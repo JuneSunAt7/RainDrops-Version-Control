@@ -35,6 +35,5 @@ func check_args(){
     }
 }
 func main() {
-
     check_args()
 }
