@@ -64,6 +64,7 @@ func Connect(uname string, passwd string) (err error) {
 		return err
 	}
 	SetupRepoInServer(connect)
+	connect.Write([]byte("close\n"))
 	return nil
 
 }

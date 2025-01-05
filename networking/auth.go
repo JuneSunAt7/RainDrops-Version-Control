@@ -22,6 +22,7 @@ func getUserCert(conn net.Conn, username string) bool {
 
 		return false
 	}
+	
 	if string(netbuff[:n]) == "1" {
 
 		return true

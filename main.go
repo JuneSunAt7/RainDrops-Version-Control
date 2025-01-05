@@ -4,6 +4,7 @@ import (
     "rdvc/init_dir"
     "rdvc/networking"
 	"os"
+    "strings"
 
 	"github.com/pterm/pterm"
 )
@@ -44,10 +45,14 @@ func check_args(){
             pterm.Error.Println("Error in keeping:", err)
         }
     case "send":
-        
+        networking.UploadKeeps(os.Args[3])
     case "get":
+
     case "set":
         networking.Connect(os.Args[3], os.Args[5])
+
+        reg_data := []string{os.Args[3], os.Args[5]}
+        init_dir.CreateSettings( strings.Join(reg_data, ","), "reg_data" )
     default:
         pterm.Error.Printfln("Unknown command: %s\n", os.Args[1])
         printHelp()
