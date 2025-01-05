@@ -53,7 +53,6 @@ func UploadKeeps(repoName string) error {
 		}
 	}
 	reg_data := getCreds()
-	fmt.Println(reg_data)
 
 	defer connect.Close()
 
