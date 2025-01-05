@@ -16,11 +16,12 @@ func printHelp() {
     pterm.FgCyan.Printfln(" rdvc keep -m <message> -u <user_name> -n <repo_name>    Keep changes with a message")
     pterm.FgCyan.Printfln(" rdvc line -n <repo_name> -o  <name_line>     Create line for current changes in repo")
     pterm.FgCyan.Printfln(" rdvc checkout -n <repo_name> -o <line_name>      Go to line")
+    pterm.FgCyan.Printfln(" rdvc roll -n <repo_name>      Pullback to choosed version of file")
     pterm.FgCyan.Printfln(" ")
     pterm.FgCyan.Printfln(" rdvc set -u <username> -p <password>     Setup config for cloud storage")
     pterm.FgCyan.Printfln(" rdvc send -n <repo_name>     Send keeped changes to cloud")
     pterm.FgCyan.Printfln(" rdvc get -n <repo_name>     Get list changes from repo in cloud")
-    pterm.FgCyan.Printfln(" rdvc roll -n <repo_name> -i <number_modification>     Pullback to choosed version of file")
+   
     pterm.FgCyan.Printfln(" ")
     pterm.FgMagenta.Printfln(" rdvc help     Display this help message")
 }
@@ -73,7 +74,13 @@ func check_args(){
         reg_data := []string{os.Args[3], os.Args[5]}
         init_dir.CreateSettings( strings.Join(reg_data, ","), "reg_data" )
     case "roll":
-        
+        repoPath := init_dir.ReadFromReg(os.Args[3])
+        vcs := init_dir.NewVCS(repoPath)
+        err := vcs.Rollback()
+        if err != nil {
+            pterm.Error.Println("Error pullback:", err)
+            return
+        }
     default:
         pterm.Error.Printfln("Unknown command: %s\n", os.Args[1])
         printHelp()

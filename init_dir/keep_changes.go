@@ -6,6 +6,7 @@ import (
     "io/ioutil"
     "os"
     "path/filepath"
+	"strings"
     "time"
 
     "github.com/pterm/pterm"
@@ -110,5 +111,63 @@ func (v *VCS) MakeKeep(message string, author string) error {
     }
 
     pterm.Success.Printfln("Successfuly keeped in: %s\n", keepFilePath)
+    return nil
+}
+// Rollback восстанавливает состояние репозитория до последнего коммита
+func (v *VCS) Rollback() error {
+    keepsDir := filepath.Join(v.RepoPath, ".rdvc", "keeps")
+    files, err := ioutil.ReadDir(keepsDir)
+    if err != nil {
+        return fmt.Errorf("no reading history of keeps: %v", err)
+    }
+
+    var lastKeepFile string
+    var lastKeepTime int64
+
+    for _, file := range files {
+        if filepath.Ext(file.Name()) == ".json" && strings.Contains(file.Name(), v.CurrentBranch) {
+            if file.ModTime().Unix() > lastKeepTime {
+                lastKeepTime = file.ModTime().Unix()
+                lastKeepFile = filepath.Join(keepsDir, file.Name())
+            }
+        }
+    }
+
+    if lastKeepFile == "" {
+        return fmt.Errorf("no found last saving in line %s", v.CurrentBranch)
+    }
+
+    keepData, err := ioutil.ReadFile(lastKeepFile)
+    if err != nil {
+        return fmt.Errorf("keep file is bad: %v", err)
+    }
+
+    var keep Keep
+    err = json.Unmarshal(keepData, &keep)
+    if err != nil {
+        return fmt.Errorf("keep file is bad: %v", err)
+    }
+
+    for _, file := range keep.Files {
+        // Преобразуем абсолютный путь в относительный, если это необходимо
+        if filepath.IsAbs(file.Name) {
+            relativePath, err := filepath.Rel(v.RepoPath, file.Name)
+            if err != nil {
+                return fmt.Errorf("cannot convert to relative path: %s, error: %v", file.Name, err)
+            }
+            file.Name = relativePath // Меняем имя файла на относительное
+        }
+
+        targetPath := filepath.Join(v.RepoPath, file.Name)
+        fmt.Printf("Restoring file to: %s\n", targetPath) // Логируем путь
+
+        os.MkdirAll(filepath.Dir(targetPath), os.ModePerm)
+        err = ioutil.WriteFile(targetPath, []byte(file.Content), 0644)
+        if err != nil {
+            return fmt.Errorf("cannot restore file %s: %v", file.Name, err)
+        }
+    }
+
+    pterm.Success.Printfln("Successfully rollback: %s", lastKeepFile)
     return nil
 }
