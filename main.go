@@ -2,6 +2,7 @@ package main
 
 import (
     "rdvc/init_dir"
+    "rdvc/networking"
 	"os"
 
 	"github.com/pterm/pterm"
@@ -12,7 +13,7 @@ func printHelp() {
     pterm.FgBlue.Println("Usage:")
     pterm.FgCyan.Println(" rdvc init -p <path_to_directory> -n <nickname_repo>    Initialize a controlled directory")
     pterm.FgCyan.Printfln(" rdvc keep -m <message> -u <user_name> -n <nickname_repo>    Keep changes with a message")
-    pterm.FgCyan.Printfln(" rdvc send -n <name_dir_in_cloud>     Send keeped changes to cloud")
+    pterm.FgCyan.Printfln(" rdvc send -n <nickname_repo>     Send keeped changes to cloud")
     pterm.FgCyan.Printfln(" rdvc get -n <name_dir_in_cloud>     Get last changes from cloud")
     pterm.FgCyan.Printfln(" ")
     pterm.FgCyan.Printfln(" rdvc set -u <username> -p <password>     Setup config for cloud storage")
@@ -43,8 +44,10 @@ func check_args(){
             pterm.Error.Println("Error in keeping:", err)
         }
     case "send":
+        
     case "get":
     case "set":
+        networking.Connect(os.Args[3], os.Args[5])
     default:
         pterm.Error.Printfln("Unknown command: %s\n", os.Args[1])
         printHelp()
