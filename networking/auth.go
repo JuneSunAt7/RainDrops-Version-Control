@@ -22,12 +22,11 @@ func getUserCert(conn net.Conn, username string) bool {
 
 		return false
 	}
-	
+
 	if string(netbuff[:n]) == "1" {
 
 		return true
 	} else {
-		//pterm.FgRed.Println("Certificate not found")
 
 		return false
 	}
@@ -45,7 +44,6 @@ func AuthenticateClient(conn net.Conn, pass string, uname string) error {
 
 	UNAME = uname
 	if getUserCert(conn, uname) {
-		//pterm.Success.Println("Cert found")
 		return nil
 	} else {
 

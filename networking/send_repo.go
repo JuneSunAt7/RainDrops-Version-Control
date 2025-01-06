@@ -101,7 +101,7 @@ func uploadFiles(conn net.Conn,  repoName string) {
 		pterm.Error.Println("Error network connection")
 	}
 
-        _, err = conn.Write([]byte(fmt.Sprintf("%s\x00\n", file.Name()))) // Нулевой байт в конце имени
+        _, err = conn.Write([]byte(fmt.Sprintf("%s\x00\n", file.Name()))) 
         if err != nil {
             pterm.Error.Printfln("Error getting info about file: %v", err)
             continue
